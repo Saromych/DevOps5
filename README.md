@@ -77,3 +77,4 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000 &
 # Приложение (для генерации нагрузки)
 kubectl port-forward -n crud-demo svc/crud-app 8080:8080 &
 ```
+
