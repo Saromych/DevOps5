@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crud-app
+  namespace: crud-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crud-app
+  template:
+    metadata:
+      labels:
+        app: crud-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: app
+        image: crud-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: DATABASE_URL
+          value: "host=postgres.crud-demo.svc.cluster.local user=postgres password=postgres dbname=cruddb sslmode=disable"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crud-app
+  namespace: crud-demo
+spec:
+  selector:
+    app: crud-app
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crud-app-nodeport
+  namespace: crud-demo
+spec:
+  type: NodePort
+  selector:
+    app: crud-app
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30080
